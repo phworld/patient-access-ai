@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HAIL – Patient Access Intelligence Coach</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --hail-bg: #030712;
+      --hail-glass-bg: rgba(15, 23, 42, 0.75);
+      --hail-border: rgba(148, 163, 184, 0.4);
+      --hail-accent: #38bdf8;
+      --hail-accent-soft: rgba(56, 189, 248, 0.25);
+      --hail-accent-2: #22c55e;
+      --hail-danger: #f97373;
+      --hail-warning: #facc15;
+      --hail-text: #e5e7eb;
+      --hail-text-muted: #9ca3af;
+      --hail-pill-bg: rgba(15, 23, 42, 0.9);
+      --hail-radius-xl: 18px;
+      --hail-radius-lg: 14px;
+      --hail-radius-md: 10px;
+      --hail-blur: 22px;
+      --hail-shadow-soft: 0 24px 80px rgba(15, 23, 42, 0.8);
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      padding: 20px;
+      background:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.25), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.22), transparent 55%),
+        radial-gradient(circle at top right, rgba(34, 197, 94, 0.22), transparent 60%),
+        linear-gradient(135deg, #020617, #000000);
+      color: var(--hail-text);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      border-radius: 24px;
+      background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.22), transparent 55%)
+          border-box,
+        radial-gradient(circle at bottom right, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.95))
+          padding-box;
+      border: 1px solid rgba(148, 163, 184, 0.26);
+      box-shadow: var(--hail-shadow-soft);
+      overflow: hidden;
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      position: relative;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(32px);
+      opacity: 0.55;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .orb.orb-blue {
+      width: 260px;
+      height: 260px;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.5), transparent 55%);
+      top: -60px;
+      right: -40px;
+    }
+
+    .orb.orb-green {
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, rgba(34, 197, 94, 0.45), transparent 55%);
+      bottom: -40px;
+      left: -20px;
+    }
+
+    .header {
+      position: relative;
+      z-index: 1;
+      padding: 20px 28px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.16), transparent 60%),
+        radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.12), transparent 60%),
+        rgba(15, 23, 42, 0.94);
+      backdrop-filter: blur(26px);
+      -webkit-backdrop-filter: blur(26px);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .hail-logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 22px;
+      background: conic-gradient(
+        from 220deg,
+        #22c55e,
+        #38bdf8,
+        #e879f9,
+        #facc15,
+        #22c55e
+      );
+      padding: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 0 18px rgba(56, 189, 248, 0.55),
+        0 0 40px rgba(34, 197, 94, 0.35);
+    }
+
+    .hail-logo-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: inherit;
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.98));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: #e5e7eb;
+    }
+
+    .header-title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .app-title {
+      font-size: 20px;
+      font-weight: 650;
+      letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hail-tag {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.65);
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.96));
+      color: var(--hail-text-muted);
+    }
+
+    .app-subtitle {
+      font-size: 12px;
+      color: var(--hail-text-muted);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 11px;
+      color: var(--hail-text-muted);
+    }
+
+    .stanford-pill {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(248, 250, 252, 0.2);
+      background: radial-gradient(circle at top left, rgba(248, 250, 252, 0.06), transparent 60%);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stanford-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #8c1515;
+      box-shadow: 0 0 10px rgba(248, 113, 113, 0.8);
+    }
+
+    .status-chip {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(22, 163, 74, 0.16);
+      border: 1px solid rgba(22, 163, 74, 0.35);
+      color: #bbf7d0;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.9);
+    }
+
+    .main-content {
+      position: relative;
+      z-index: 1;
+      padding: 22px 24px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .controls-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--hail-text-muted);
+    }
+
+    .view-toggle {
+      display: inline-flex;
+      padding: 3px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .view-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--hail-text-muted);
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.18s ease-out;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .view-btn span.dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.6);
+    }
+
+    .view-btn.active {
+      color: #e5e7eb;
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.26), rgba(15, 23, 42, 0.96));
+      box-shadow:
+        0 0 24px rgba(56, 189, 248, 0.35),
+        0 0 18px rgba(56, 189, 248, 0.2);
+    }
+
+    .view-btn.active span.dot {
+      background: var(--hail-accent);
+    }
+
+    .view-btn:hover:not(.active) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .hint-pill {
+      font-size: 10px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--hail-text-muted);
+    }
+
+    .section-header {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--hail-text-muted);
+      padding-bottom: 8px;
+      margin-top: 8px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .section-header-title {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .section-header-title span.icon {
+      font-size: 15px;
+    }
+
+    .lean-tag {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 999px;
+      padding: 3px 9px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: var(--hail-text-muted);
+    }
+
+    .ai-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.1fr);
+      gap: 18px;
+    }
+
+    .ai-column {
+      padding: 16px 16px 18px;
+      border-radius: var(--hail-radius-xl);
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.98));
+      border: 1px solid var(--hail-border);
+      backdrop-filter: blur(var(--hail-blur));
+      -webkit-backdrop-filter: blur(var(--hail-blur));
+      box-shadow: 0 14px 44px rgba(15, 23, 42, 0.9);
+    }
+
+    .ai-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 6px;
+      color: var(--hail-text-muted);
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .chip, .scenario-btn {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: var(--hail-text-muted);
+      background: rgba(15, 23, 42, 0.9);
+      cursor: pointer;
+      transition: all 0.15s ease-out;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+
+    .scenario-btn:hover {
+      border-color: var(--hail-accent);
+      color: #e5e7eb;
+      box-shadow: 0 0 18px rgba(56, 189, 248, 0.45);
+    }
+
+    .scenario-btn span.icon {
+      font-size: 13px;
+    }
+
+    .ai-select,
+    .ai-textarea,
+    .ai-input {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: var(--hail-radius-md);
+      border: 1px solid rgba(51, 65, 85, 0.9);
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.96), #020617);
+      color: var(--hail-text);
+      font-size: 13px;
+      margin-bottom: 10px;
+      font-family: inherit;
+      outline: none;
+      transition: border 0.15s ease-out, box-shadow 0.15s ease-out, background 0.15s;
+    }
+
+    .ai-select:focus,
+    .ai-textarea:focus,
+    .ai-input:focus {
+      border-color: var(--hail-accent);
+      box-shadow:
+        0 0 0 1px rgba(56, 189, 248, 0.3),
+        0 0 30px rgba(56, 189, 248, 0.2);
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.98), #020617);
+    }
+
+    .ai-textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .ai-input::placeholder,
+    .ai-textarea::placeholder {
+      color: rgba(148, 163, 184, 0.7);
+    }
+
+    .ai-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 9px 18px;
+      border-radius: 999px;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      background: conic-gradient(
+        from 210deg,
+        #22c55e,
+        #38bdf8,
+        #e879f9,
+        #facc15,
+        #22c55e
+      );
+      color: #0b1120;
+      box-shadow:
+        0 12px 32px rgba(56, 189, 248, 0.6),
+        0 0 22px rgba(34, 197, 94, 0.7);
+      transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, filter 0.1s;
+      margin-top: 2px;
+    }
+
+    .ai-button span.icon {
+      font-size: 15px;
+      margin-right: 6px;
+    }
+
+    .ai-button:disabled {
+      opacity: 0.6;
+      cursor: default;
+      box-shadow: none;
+      filter: grayscale(0.2);
+    }
+
+    .ai-button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow:
+        0 16px 40px rgba(56, 189, 248, 0.7),
+        0 0 26px rgba(34, 197, 94, 0.8);
+      filter: saturate(1.05);
+    }
+
+    .ai-status {
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--hail-text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ai-status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.7);
+    }
+
+    .ai-status-dot.live {
+      background: var(--hail-accent);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.9);
+    }
+
+    .ai-result-block {
+      margin-bottom: 14px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 11px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      background: var(--hail-pill-bg);
+      border: 1px solid rgba(148, 163, 184, 0.45);
+    }
+
+    .pill-low {
+      border-color: rgba(34, 197, 94, 0.5);
+      color: #bbf7d0;
+    }
+
+    .pill-medium {
+      border-color: rgba(250, 204, 21, 0.7);
+      color: #fef9c3;
+    }
+
+    .pill-high {
+      border-color: rgba(248, 113, 113, 0.8);
+      color: #fee2e2;
+    }
+
+    .pill-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.7);
+    }
+
+    .pill-low .pill-dot {
+      background: #22c55e;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.8);
+    }
+
+    .pill-medium .pill-dot {
+      background: #facc15;
+      box-shadow: 0 0 10px rgba(250, 204, 21, 0.8);
+    }
+
+    .pill-high .pill-dot {
+      background: #f97373;
+      box-shadow: 0 0 10px rgba(248, 113, 113, 0.9);
+    }
+
+    .ai-result-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #e5e7eb;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+
+    .ai-result-body {
+      font-size: 13px;
+      color: var(--hail-text-muted);
+      line-height: 1.6;
+    }
+
+    .ai-result-body strong {
+      color: #e5e7eb;
+    }
+
+    .ai-ul {
+      padding-left: 18px;
+      margin: 4px 0 0;
+    }
+
+    .ai-ul li {
+      margin-bottom: 3px;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .metric-card {
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.96));
+      border-radius: var(--hail-radius-lg);
+      padding: 14px 14px 13px;
+      border: 1px solid rgba(51, 65, 85, 0.85);
+      box-shadow: 0 12px 38px rgba(15, 23, 42, 0.9);
+    }
+
+    .metric-label {
+      font-size: 10px;
+      color: var(--hail-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .metric-value {
+      font-size: 18px;
+      font-weight: 650;
+      color: #e5e7eb;
+      margin-bottom: 2px;
+    }
+
+    .metric-sublabel {
+      font-size: 11px;
+      color: var(--hail-text-muted);
+    }
+
+    .insight-box {
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.96));
+      border-radius: var(--hail-radius-lg);
+      border: 1px solid rgba(234, 179, 8, 0.5);
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      box-shadow: 0 10px 30px rgba(120, 53, 15, 0.6);
+    }
+
+    .insight-header {
+      font-size: 11px;
+      font-weight: 700;
+      color: #facc15;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      margin-bottom: 4px;
+    }
+
+    .insight-text {
+      font-size: 12px;
+      color: var(--hail-text-muted);
+      line-height: 1.6;
+    }
+
+    .insight-text strong {
+      color: #e5e7eb;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 18px;
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.99), #020617);
+      border-radius: var(--hail-radius-lg);
+      overflow: hidden;
+      border: 1px solid rgba(51, 65, 85, 0.9);
+      box-shadow: 0 12px 38px rgba(15, 23, 42, 0.9);
+      font-size: 12px;
+    }
+
+    .data-table th {
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.98));
+      color: var(--hail-text-muted);
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.9);
+    }
+
+    .data-table td {
+      padding: 9px 12px;
+      border-bottom: 1px solid rgba(30, 41, 59, 0.95);
+      color: var(--hail-text-muted);
+    }
+
+    .data-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .data-table tr:hover {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .trend-up {
+      color: #4ade80;
+      font-weight: 600;
+    }
+
+    .trend-down {
+      color: #f97373;
+      font-weight: 600;
+    }
+
+    .trend-neutral {
+      color: #facc15;
+      font-weight: 600;
+    }
+
+    .highlight-warning {
+      background: rgba(252, 211, 77, 0.12) !important;
+      font-weight: 600;
+    }
+
+    .highlight-danger {
+      background: rgba(239, 68, 68, 0.12) !important;
+      font-weight: 600;
+    }
+
+    .call-type-badge {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+
+    .badge-simple {
+      background: rgba(22, 163, 74, 0.24);
+      color: #bbf7d0;
+    }
+
+    .badge-complex {
+      background: rgba(248, 113, 113, 0.26);
+      color: #fecaca;
+    }
+
+    #aggregateView,
+    #detailedView {
+      border-radius: var(--hail-radius-xl);
+      padding: 14px 14px 16px;
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.98));
+      border: 1px solid rgba(51, 65, 85, 0.92);
+      box-shadow: 0 14px 44px rgba(15, 23, 42, 0.95);
+      margin-top: 6px;
+    }
+
+    @media (max-width: 900px) {
+      .ai-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .header-right {
+        align-self: stretch;
+        justify-content: space-between;
+        width: 100%;
+      }
+
+      .controls-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+
+      .main-content {
+        padding: 16px;
+      }
+
+      .metrics-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="orb orb-blue"></div>
+    <div class="orb orb-green"></div>
+
+    <header class="header">
+      <div class="header-left">
+        <div class="hail-logo">
+          <div class="hail-logo-inner">H</div>
+        </div>
+        <div class="header-title-block">
+          <div class="app-title">
+            Patient Access Intelligence Coach
+            <span class="hail-tag">HAIL • LIVE</span>
+          </div>
+          <div class="app-subtitle">
+            AI-powered coaching for Stanford Patient Access Center calls – scripts, LEAN insights, and metrics impact in real time.
+          </div>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="stanford-pill">
+          <span class="stanford-dot"></span>
+          <span>Stanford Health Care · Patient Access Center</span>
+        </div>
+        <div class="status-chip">
+          <span class="status-dot"></span>
+          <span>OpenAI-secure · Read-only</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div class="controls-row">
+        <div class="controls">
+          <div class="controls-label">Dashboard mode</div>
+          <div class="view-toggle">
+            <button class="view-btn active" id="aggregateBtn" onclick="showView('aggregate')">
+              <span class="dot"></span>
+              Aggregate
+            </button>
+            <button class="view-btn" id="detailedBtn" onclick="showView('detailed')">
+              <span class="dot"></span>
+              Disaggregated
+            </button>
+          </div>
+        </div>
+        <div class="hint-pill">
+          Tip: Use 1-click scenarios below for panel demos, then tweak notes and rerun with HAIL.
+        </div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-header-title">
+          <span class="icon">⚡</span>
+          <span>AI Patient Access Coach (OpenAI-powered)</span>
+        </div>
+        <span class="lean-tag">Scenario-specific · HAIL</span>
+      </div>
+
+      <div class="ai-grid">
+        <!-- LEFT: Scenario input + 1-click prompts -->
+        <div class="ai-column">
+          <div class="ai-label">1-click scenarios for panel narration</div>
+          <div class="chip-row">
+            <button class="scenario-btn" onclick="runQuickScenario('radiology_delay')">
+              <span class="icon">🩻</span> Radiology pre-auth delay
+            </button>
+            <button class="scenario-btn" onclick="runQuickScenario('new_patient_backlog')">
+              <span class="icon">🧍</span> New patient backlog
+            </button>
+            <button class="scenario-btn" onclick="runQuickScenario('referral_leakage')">
+              <span class="icon">🔁</span> Provider referral leakage
+            </button>
+            <button class="scenario-btn" onclick="runQuickScenario('reschedule_storm')">
+              <span class="icon">📅</span> Mass weather reschedules
+            </button>
+          </div>
+
+          <div class="ai-label">Call context</div>
+          <div class="chip-row">
+            <div class="chip">Complex access</div>
+            <div class="chip">Provider experience</div>
+            <div class="chip">HCAHPS · FCR · Days to appointment</div>
+          </div>
+
+          <div class="ai-label">Call type</div>
+          <select id="callType" class="ai-select">
+            <option>New Patient Scheduling</option>
+            <option>Radiology w/ Pre-Auth</option>
+            <option>Provider Referral Coordination</option>
+            <option>Appointment Rescheduling</option>
+            <option>Patient Demographics Update</option>
+          </select>
+
+          <div class="ai-label">Primary perspective (who you are coaching)</div>
+<select id="persona" class="ai-select">
+  <option value="Patient Access Specialist">
+    Patient Access Specialist
+  </option>
+  <option value="Radiology Scheduling Specialist">
+    Radiology Scheduling Specialist
+  </option>
+  <option value="LEAN & Process Improvement Leader">
+    LEAN & Process Improvement Leader
+  </option>
+  <option value="Contact Center Manager">
+    Contact Center Manager
+  </option>
+  <option value="Healthcare Operations Leader">
+    Healthcare Operations Leader
+  </option>
+</select>
+
+          <div class="ai-label">Goal for this interaction</div>
+          <input
+            id="goal"
+            class="ai-input"
+            placeholder="e.g., Schedule complex radiology within 3 days and close the loop with the referring provider."
+          />
+
+          <div class="ai-label">Call / scenario notes</div>
+          <textarea
+            id="notes"
+            class="ai-textarea"
+            placeholder="Paste real call transcript, bullet points, or describe the scenario. Include insurance complexity, referring provider, delays, and any escalations."
+          ></textarea>
+
+          <button class="ai-button" id="runButton" onclick="runAnalysis(event)">
+            <span class="icon">⚡</span> Generate Patient Access Plan with HAIL
+          </button>
+          <div class="ai-status" id="aiStatus">
+            <span class="ai-status-dot"></span>
+            Model will generate script, disposition, LEAN insights, and metrics impact – no canned logic.
+          </div>
+        </div>
+
+        <!-- RIGHT: AI results -->
+        <div class="ai-column" id="aiResults" style="display: none;">
+          <div class="ai-result-block">
+            <span id="riskPill" class="pill pill-low">
+              <span class="pill-dot"></span>
+              Risk: LOW
+            </span>
+          </div>
+
+          <div class="ai-result-block">
+            <div class="ai-result-title">Executive summary</div>
+            <div class="ai-result-body" id="aiSummary"></div>
+          </div>
+
+          <div class="ai-result-block">
+            <div class="ai-result-title">Recommended disposition</div>
+            <div class="ai-result-body" id="aiDisposition"></div>
+          </div>
+
+          <div class="ai-result-block">
+            <div class="ai-result-title">Scheduling plan</div>
+            <div class="ai-result-body" id="aiScheduling"></div>
+          </div>
+
+          <div class="ai-result-block">
+            <div class="ai-result-title">Agent script</div>
+            <div class="ai-result-body" id="aiScripts">
+              <div><strong>Opening:</strong> <span id="scriptOpening"></span></div>
+              <div>
+                <strong>Probing questions:</strong>
+                <ul class="ai-ul" id="scriptQuestions"></ul>
+              </div>
+              <div><strong>Expectation setting:</strong> <span id="scriptExpect"></span></div>
+              <div><strong>Closing:</strong> <span id="scriptClosing"></span></div>
+            </div>
+          </div>
+
+          <div class="ai-result-block">
+            <div class="ai-result-title">LEAN insights</div>
+            <div class="ai-result-body" id="aiLean">
+              <div><strong>MUDA types:</strong> <span id="leanMuda"></span></div>
+              <div><strong>Root cause (5 Whys):</strong> <span id="leanRoot"></span></div>
+              <div>
+                <strong>Quick wins:</strong>
+                <ul class="ai-ul" id="leanQuickWins"></ul>
+              </div>
+              <div>
+                <strong>Longer-term fixes:</strong>
+                <ul class="ai-ul" id="leanLongerFixes"></ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="ai-result-block">
+            <div class="ai-result-title">Provider & metrics impact</div>
+            <div class="ai-result-body" id="aiImpact">
+              <div><strong>Provider impact:</strong> <span id="providerImpact"></span></div>
+              <div><strong>Days to appointment:</strong> <span id="daysImpact"></span></div>
+              <div><strong>FCR impact:</strong> <span id="fcrImpact"></span></div>
+              <div><strong>HCAHPS impact:</strong> <span id="hcahpsImpact"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Aggregate view -->
+      <div id="aggregateView">
+        <div class="section-header">
+          <div class="section-header-title">
+            <span class="icon">📊</span>
+            <span>Overall performance metrics (baseline sample)</span>
+          </div>
+          <span class="lean-tag">Context for AI coaching</span>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">First call resolution</div>
+            <div class="metric-value">82%</div>
+            <div class="metric-sublabel">Target: 80%</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Average handle time</div>
+            <div class="metric-value">6.2 min</div>
+            <div class="metric-sublabel">Target: &lt; 7 min</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Patient satisfaction</div>
+            <div class="metric-value">4.5 / 5</div>
+            <div class="metric-sublabel">HCAHPS aligned</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Provider satisfaction</div>
+            <div class="metric-value">4.3 / 5</div>
+            <div class="metric-sublabel">Referral network</div>
+          </div>
+        </div>
+
+        <div class="insight-box">
+          <div class="insight-header">Performance snapshot</div>
+          <div class="insight-text">
+            Baseline metrics are healthy in aggregate. HAIL focuses on scenario-level coaching to protect
+            provider relationships and accelerate access on the complex edge cases that aggregate metrics hide.
+          </div>
+        </div>
+
+        <div class="section-header">
+          <div class="section-header-title">
+            <span class="icon">📞</span>
+            <span>Call volume distribution</span>
+          </div>
+        </div>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Call type</th>
+              <th>Monthly volume</th>
+              <th>Avg duration</th>
+              <th>FCR %</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <span class="call-type-badge badge-simple">Simple</span>
+                Appointment rescheduling
+              </td>
+              <td>3,240</td>
+              <td>3.2 min</td>
+              <td class="trend-up">93%</td>
+            </tr>
+            <tr>
+              <td>
+                <span class="call-type-badge badge-simple">Simple</span>
+                Patient demographics update
+              </td>
+              <td>1,890</td>
+              <td>2.8 min</td>
+              <td class="trend-up">96%</td>
+            </tr>
+            <tr>
+              <td>
+                <span class="call-type-badge badge-complex">Complex</span>
+                New patient scheduling
+              </td>
+              <td>2,120</td>
+              <td>9.4 min</td>
+              <td class="trend-neutral">78%</td>
+            </tr>
+            <tr>
+              <td>
+                <span class="call-type-badge badge-complex">Complex</span>
+                Radiology w/ pre-auth
+              </td>
+              <td>1,650</td>
+              <td>11.2 min</td>
+              <td class="trend-neutral">74%</td>
+            </tr>
+            <tr>
+              <td>
+                <span class="call-type-badge badge-complex">Complex</span>
+                Provider referral coordination
+              </td>
+              <td>1,100</td>
+              <td>12.8 min</td>
+              <td class="trend-down">71%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Disaggregated view -->
+      <div id="detailedView" style="display: none;">
+        <div class="section-header">
+          <div class="section-header-title">
+            <span class="icon">🧩</span>
+            <span>Disaggregated analysis by experience & complexity</span>
+          </div>
+          <span class="lean-tag">LEAN pattern spotting</span>
+        </div>
+
+        <div class="insight-box" style="border-color: rgba(248, 113, 113, 0.7); box-shadow: 0 12px 34px rgba(185, 28, 28, 0.8);">
+          <div class="insight-header" style="color: #fecaca;">Critical pattern identified</div>
+          <div class="insight-text">
+            <strong>MUDA (waste):</strong> Senior agents process ~73% simple calls while new agents absorb a disproportionate share of complex access work.
+            HAIL can surface this behavior during specific call reviews and suggest targeted redistribution without harming FCR.
+          </div>
+        </div>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Call type</th>
+              <th>Agent level</th>
+              <th>FCR %</th>
+              <th>Volume distribution</th>
+              <th>Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td rowspan="2">
+                <span class="call-type-badge badge-simple">Simple</span>
+                Rescheduling / demographics
+              </td>
+              <td>New agents (0–6 mo)</td>
+              <td class="trend-up">91%</td>
+              <td>27% of their calls</td>
+              <td>Appropriate</td>
+            </tr>
+            <tr>
+              <td>Senior agents (12+ mo)</td>
+              <td class="trend-up">94%</td>
+              <td class="highlight-warning">73% of their calls</td>
+              <td class="trend-down">Underutilized</td>
+            </tr>
+            <tr>
+              <td rowspan="2">
+                <span class="call-type-badge badge-complex">Complex</span>
+                New patient + insurance
+              </td>
+              <td>New agents (0–6 mo)</td>
+              <td class="trend-down">64%</td>
+              <td>38% of their calls</td>
+              <td class="trend-down">Struggling</td>
+            </tr>
+            <tr class="highlight-danger">
+              <td>Senior agents (12+ mo)</td>
+              <td class="trend-up">89%</td>
+              <td class="highlight-danger">12% of their calls</td>
+              <td class="trend-down">Avoidance behavior</td>
+            </tr>
+            <tr>
+              <td rowspan="2">
+                <span class="call-type-badge badge-complex">Complex</span>
+                Radiology pre-auth
+              </td>
+              <td>New agents (0–6 mo)</td>
+              <td class="trend-down">58%</td>
+              <td>20% of their calls</td>
+              <td class="trend-down">Needs support</td>
+            </tr>
+            <tr class="highlight-danger">
+              <td>Senior agents (12+ mo)</td>
+              <td class="trend-up">91%</td>
+              <td class="highlight-danger">8% of their calls</td>
+              <td class="trend-down">Avoidance behavior</td>
+            </tr>
+            <tr>
+              <td rowspan="2">
+                <span class="call-type-badge badge-complex">Complex</span>
+                Provider referrals
+              </td>
+              <td>New agents (0–6 mo)</td>
+              <td class="trend-down">61%</td>
+              <td>15% of their calls</td>
+              <td class="trend-down">Training gap</td>
+            </tr>
+            <tr class="highlight-danger">
+              <td>Senior agents (12+ mo)</td>
+              <td class="trend-up">88%</td>
+              <td class="highlight-danger">7% of their calls</td>
+              <td class="trend-down">Avoidance behavior</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="section-header">
+          <div class="section-header-title">
+            <span class="icon">📈</span>
+            <span>Patient access impact</span>
+          </div>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">Avg days to appointment</div>
+            <div class="metric-value" style="color: #f97373;">4.1 days</div>
+            <div class="metric-sublabel">Should be: 2.3 days</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Complex radiology wait</div>
+            <div class="metric-value" style="color: #f97373;">5.8 days</div>
+            <div class="metric-sublabel">Senior agent path: 1.8 days</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Provider satisfaction</div>
+            <div class="metric-value" style="color: #facc15;">4.2 / 5</div>
+            <div class="metric-sublabel">↓ Due to referral delays</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Patient HCAHPS impact</div>
+            <div class="metric-value" style="color: #f97373;">-12 pts</div>
+            <div class="metric-sublabel">"Getting appointments"</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    function showView(view) {
+      const aggregateView = document.getElementById("aggregateView");
+      const detailedView = document.getElementById("detailedView");
+      const aggregateBtn = document.getElementById("aggregateBtn");
+      const detailedBtn = document.getElementById("detailedBtn");
+
+      if (view === "aggregate") {
+        aggregateView.style.display = "block";
+        detailedView.style.display = "none";
+        aggregateBtn.classList.add("active");
+        detailedBtn.classList.remove("active");
+      } else {
+        aggregateView.style.display = "none";
+        detailedView.style.display = "block";
+        aggregateBtn.classList.remove("active");
+        detailedBtn.classList.add("active");
+      }
+    }
+
+    const QUICK_SCENARIOS = {
+      radiology_delay: {
+        callType: "Radiology w/ Pre-Auth",
+        persona: "Chona - Radiology Scheduling",
+        goal:
+          "Reduce radiology pre-auth related delays from 7 days to 3 days while keeping providers informed.",
+        notes: `Complex radiology MRI with high-deductible PPO plan. Pre-authorization submitted 5 days ago but still pending. Referring provider's office has called twice asking for status. Patient is anxious and has chronic pain. Agent sees multiple workqueues and is not sure whether to call payer or route back to provider office for missing documentation.`
+      },
+      new_patient_backlog: {
+        callType: "New Patient Scheduling",
+        persona: "Silvia - Patient Access & Provider Relations",
+        goal:
+          "Protect 'getting appointments' HCAHPS scores while working through a temporary new patient backlog.",
+        notes: `Multiple new patient calls for a high-demand specialty clinic. Soonest available appointment is 6 weeks out. Some patients are clinically urgent referrals from Stanford-employed providers, others are external self-referrals. Agents are booking first-come-first-served without stratifying urgency or provider relationship. Providers are frustrated that their patients can't get in sooner.`
+      },
+      referral_leakage: {
+        callType: "Provider Referral Coordination",
+        persona: "Silvia - Patient Access & Provider Relations",
+        goal:
+          "Reduce referral leakage from key community cardiology partners by tightening handoffs and callbacks.",
+        notes: `Community cardiologist sends referrals via fax and electronic portal. Patient access agents often need clarification on order details and insurance, leading to back-and-forth messages. Some patients never complete scheduling. Provider reports that ~25% of referred patients go elsewhere after delays. No standard script exists for closing the loop with the referring office.`
+      },
+      reschedule_storm: {
+        callType: "Appointment Rescheduling",
+        persona: "Karen - Contact Center Management",
+        goal:
+          "Handle a sudden spike in weather-related reschedules without overwhelming agents or harming FCR.",
+        notes: `Storm causes one-day clinic closure at Newark. 180 patients need to be rescheduled within 5 business days. Incoming calls spike and hold times increase. Some visits are routine follow-ups, others are time-sensitive pre-op or diagnostics tied to surgery dates. No clear prioritization rules exist. Agents are rescheduling based on what's easiest to find in the template, not clinical urgency.`
+      }
+    };
+
+    async function runAnalysis(event, overrides) {
+      if (event && event.preventDefault) {
+        event.preventDefault();
+      }
+
+      const callTypeEl = document.getElementById("callType");
+      const personaEl = document.getElementById("persona");
+      const goalEl = document.getElementById("goal");
+      const notesEl = document.getElementById("notes");
+      const statusEl = document.getElementById("aiStatus");
+      const runButton = document.getElementById("runButton");
+      const resultsEl = document.getElementById("aiResults");
+
+      const callType = overrides?.callType || callTypeEl.value;
+      const persona = overrides?.persona || personaEl.value;
+      const goal = overrides?.goal || goalEl.value;
+      const notes = overrides?.notes || notesEl.value;
+
+      if (!notes.trim()) {
+        statusEl.innerHTML =
+          '<span class="ai-status-dot"></span>Please add some call / scenario notes so the model can respond specifically.';
+        return;
+      }
+
+      statusEl.innerHTML =
+        '<span class="ai-status-dot live"></span>Analyzing scenario with OpenAI…';
+      runButton.disabled = true;
+
+      try {
+        const resp = await fetch("/api/patient-access/analyze", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ callType, persona, goal, notes })
+        });
+
+        const data = await resp.json();
+
+        if (!resp.ok || !data.success) {
+          statusEl.innerHTML =
+            '<span class="ai-status-dot"></span>' +
+            (data.error || "Something went wrong.");
+          resultsEl.style.display = "none";
+          runButton.disabled = false;
+          return;
+        }
+
+        const a = data.analysis || {};
+
+        // Risk pill
+        const risk = (a.riskLevel || "low").toLowerCase();
+        const riskPill = document.getElementById("riskPill");
+        riskPill.textContent = "";
+        riskPill.className =
+          "pill " +
+          (risk === "high"
+            ? "pill-high"
+            : risk === "medium"
+            ? "pill-medium"
+            : "pill-low");
+        const dot = document.createElement("span");
+        dot.className = "pill-dot";
+        const text = document.createElement("span");
+        text.textContent = "Risk: " + risk.toUpperCase();
+        riskPill.appendChild(dot);
+        riskPill.appendChild(text);
+
+        // Text fields from OpenAI
+        document.getElementById("aiSummary").textContent = a.summary || "";
+        document.getElementById("aiDisposition").textContent =
+          a.recommendedDisposition || "";
+        document.getElementById("aiScheduling").textContent =
+          a.schedulingPlan || "";
+
+        const scripts = a.scripts || {};
+        document.getElementById("scriptOpening").textContent =
+          scripts.opening || "";
+        document.getElementById("scriptExpect").textContent =
+          scripts.expectationSetting || "";
+        document.getElementById("scriptClosing").textContent =
+          scripts.closing || "";
+
+        const pqList = document.getElementById("scriptQuestions");
+        pqList.innerHTML = "";
+        (scripts.probingQuestions || []).forEach((q) => {
+          const li = document.createElement("li");
+          li.textContent = q;
+          pqList.appendChild(li);
+        });
+
+        const lean = a.leanInsights || {};
+        document.getElementById("leanMuda").textContent = (lean.mudaTypes || []).join(
+          ", "
+        );
+        document.getElementById("leanRoot").textContent = lean.rootCause || "";
+
+        const qwList = document.getElementById("leanQuickWins");
+        qwList.innerHTML = "";
+        (lean.quickWins || []).forEach((item) => {
+          const li = document.createElement("li");
+          li.textContent = item;
+          qwList.appendChild(li);
+        });
+
+        const lfList = document.getElementById("leanLongerFixes");
+        lfList.innerHTML = "";
+        (lean.longerTermFixes || []).forEach((item) => {
+          const li = document.createElement("li");
+          li.textContent = item;
+          lfList.appendChild(li);
+        });
+
+        document.getElementById("providerImpact").textContent =
+          a.providerImpact || "";
+        const metricsImpact = a.metricsImpact || {};
+        const days = metricsImpact.daysToAppointment || {};
+        if (
+          typeof days.current === "number" &&
+          typeof days.projected === "number"
+        ) {
+          document.getElementById("daysImpact").textContent =
+            days.current.toFixed(1) +
+            " → " +
+            days.projected.toFixed(1) +
+            " days";
+        } else {
+          document.getElementById("daysImpact").textContent = "";
+        }
+        document.getElementById("fcrImpact").textContent =
+          metricsImpact.fcrImpact || "";
+        document.getElementById("hcahpsImpact").textContent =
+          metricsImpact.hcahpsImpact || "";
+
+        resultsEl.style.display = "block";
+        statusEl.innerHTML =
+          '<span class="ai-status-dot live"></span>Analysis complete. Tweak the scenario or persona and run again with HAIL.';
+      } catch (err) {
+        console.error(err);
+        statusEl.innerHTML =
+          '<span class="ai-status-dot"></span>Network or server error while calling OpenAI backend.';
+        document.getElementById("aiResults").style.display = "none";
+      } finally {
+        runButton.disabled = false;
+      }
+    }
+
+    function runQuickScenario(key) {
+      const preset = QUICK_SCENARIOS[key];
+      if (!preset) return;
+
+      document.getElementById("callType").value = preset.callType;
+      document.getElementById("persona").value = preset.persona;
+      document.getElementById("goal").value = preset.goal;
+      document.getElementById("notes").value = preset.notes;
+
+      runAnalysis(null, preset);
+    }
+  </script>
+</body>
+</html>
